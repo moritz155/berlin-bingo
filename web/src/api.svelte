@@ -4,12 +4,12 @@
 
   let baseUrl: string | boolean = import.meta.env.VITE_API_BASE_URL_LOCAL;
   if (import.meta.env.MODE !== 'development') {
-    baseUrl = import.meta.env.VITE_API_BASE_URL_REMOTE;
+    baseUrl = import.meta.env.VITE_API_BASE_URL_LOCAL;
   }
 
   let wsBaseUrl: string | boolean = import.meta.env.VITE_API_WS_BASE_URL_LOCAL;
   if (import.meta.env.MODE !== 'development') {
-    wsBaseUrl = import.meta.env.VITE_API_WS_BASE_URL_REMOTE;
+    wsBaseUrl = import.meta.env.VITE_API_WS_BASE_URL_LOCAL;
   }
 
   export const apiUrl: string | boolean = baseUrl;

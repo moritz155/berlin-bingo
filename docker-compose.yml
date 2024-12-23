@@ -1,12 +1,69 @@
-version: '2'
+version: '3.8'
 services:
   postgres:
     container_name: bs_bingo_postgres
-    image: postgres
-    # command: postgres -c 'max_connections=8'
+    image: postgres:latest
     environment:
       POSTGRES_DB: bs_bingo
       POSTGRES_USER: bs_bingo
       POSTGRES_PASSWORD: muchsecretwow
+    networks: 
+      - bs_bingo
     ports:
       - '8433:5432'
+
+  migrate:
+    container_name: bs_bingo_migrate
+    image: rust:latest
+    working_dir: /app
+    volumes:
+      - ./api:/app
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://bs_bingo:muchsecretwow@postgres:5432/bs_bingo
+    networks: 
+      - bs_bingo
+    command: |
+      sh -c "
+      cargo install sqlx-cli &&
+      sqlx migrate run
+      "
+
+  api:
+    container_name: bs_bingo_api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://bs_bingo:muchsecretwow@postgres:5432/bs_bingo
+      PORT: 1313
+      CORS_ALLOWED_ORIGIN: http://localhost:3000
+      REQUEST_DELAY_MS: 0
+      ENVIRONMENT: production
+    networks: 
+      - bs_bingo
+    ports:
+      - '1313:1313'
+
+  web:
+    container_name: bs_bingo_web
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    environment:
+      VITE_BASE_URL_LOCAL: http://localhost:3000
+      VITE_API_BASE_URL_LOCAL: http://localhost:1313
+      VITE_API_WS_BASE_URL_LOCAL: ws://localhost:1313
+    networks: 
+      - bs_bingo
+    ports:
+      - '3000:80'
+
+networks:
+  bs_bingo:
+    driver: bridge

@@ -45,7 +45,7 @@
 
   let url: string | boolean = import.meta.env.VITE_BASE_URL_LOCAL;
   if (import.meta.env.MODE !== 'development') {
-    url = import.meta.env.VITE_BASE_URL_REMOTE;
+    url = import.meta.env.VITE_BASE_URL_LOCAL;
   }
 
   let id: string | undefined = undefined;
